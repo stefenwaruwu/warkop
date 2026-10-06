@@ -1,9 +1,39 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Instagram, MessageCircle, Send } from 'lucide-react';
+import { submitContact } from '../services/api';
 
 const Contact = () => {
+  const [isSending, setIsSending] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
+  const [hasSubmitError, setHasSubmitError] = useState(false);
+
   useEffect(() => { document.title = 'Kontak — Warkop BIntang'; }, []);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fields = new FormData(form);
+
+    setIsSending(true);
+    setSubmitStatus('');
+    setHasSubmitError(false);
+
+    try {
+      await submitContact({
+        name: fields.get('name'),
+        email: fields.get('email'),
+        message: fields.get('message'),
+      });
+      setSubmitStatus('Pesan berhasil dikirim. Terima kasih!');
+      form.reset();
+    } catch {
+      setSubmitStatus('Pesan belum berhasil dikirim. Silakan coba lagi.');
+      setHasSubmitError(true);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const handleCall = () => {
     window.location.href = 'tel:+6282276177060';
@@ -85,7 +115,7 @@ const Contact = () => {
             </button>
           </div>
 
-          {/* Quick Message Form (static - sends to WA) */}
+          {/* Quick Message Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -93,19 +123,9 @@ const Contact = () => {
             className="rounded-3xl bg-dark-light border border-white/10 p-8"
           >
             <h2 className="font-playfair text-2xl font-bold text-cream mb-2">Kirim Pesan</h2>
-            <p className="text-cream-muted text-sm mb-6">Isi form di bawah untuk mengirim pesan melalui email kami.</p>
+            <p className="text-cream-muted text-sm mb-6">Isi form di bawah untuk mengirim pesan kepada kami.</p>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const name = e.target.name.value;
-                const msg = e.target.message.value;
-                const subject = encodeURIComponent(`Pesan dari ${name}`);
-                const body = encodeURIComponent(msg);
-                window.location.href = `mailto:stefennnw@gmail.com?subject=${subject}&body=${body}`;
-              }}
-              className="space-y-4"
-            >
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-cream-muted text-xs font-medium block mb-1.5">Nama</label>
                 <input id="contact-name" name="name" type="text" required placeholder="Nama kamu" className="input-field" />
@@ -118,9 +138,14 @@ const Contact = () => {
                 <label className="text-cream-muted text-xs font-medium block mb-1.5">Pesan</label>
                 <textarea id="contact-message" name="message" required rows={5} placeholder="Tulis pesanmu di sini..." className="input-field resize-none" />
               </div>
+              {submitStatus && (
+                <p role="status" aria-live="polite" className={hasSubmitError ? 'text-red-400 text-sm' : 'text-green-400 text-sm'}>
+                  {submitStatus}
+                </p>
+              )}
               <button type="submit" id="contact-submit" className="btn-primary w-full flex items-center justify-center gap-2">
                 <Send size={16} />
-                <span>Kirim via Email</span>
+                <span>{isSending ? 'Mengirim...' : 'Kirim Pesan'}</span>
               </button>
             </form>
           </motion.div>

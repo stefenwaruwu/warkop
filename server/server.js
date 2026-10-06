@@ -8,6 +8,7 @@ const menuRoutes = require('./routes/menus');
 const eventRoutes = require('./routes/events');
 const galleryRoutes = require('./routes/galleries');
 const ordersRoutes = require('./routes/orders');
+const contactsRoutes = require('./routes/contacts');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -29,6 +30,7 @@ app.use('/api/menus', menuRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/contacts', contactsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

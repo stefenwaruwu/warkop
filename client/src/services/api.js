@@ -34,6 +34,7 @@ export const deleteEvent = (id) => API.delete(`/events/${id}`);
 export const getGalleries = () => API.get('/galleries');
 export const createGallery = (formData) => API.post('/galleries', formData);
 export const deleteGallery = (id) => API.delete(`/galleries/${id}`);
+export const submitContact = (data) => API.post('/contacts', data);
 
 export default API;
 
